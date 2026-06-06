@@ -1,0 +1,13 @@
+services:
+  - type: static
+    name: game
+    staticPublishPath: ./
+    routes:
+      - path: /
+        filePath: ./one.html
+      - path: /one
+        filePath: ./one.html
+      - path: /two
+        filePath: ./two.html
+      - path: /three
+        filePath: ./three.html
