@@ -386,7 +386,7 @@
 
         /* Guides/Mascots side-by-side */
         .mascot-guide {
-            width: 180px;
+            width: 280px;
             height: 100%;
             display: flex;
             flex-direction: column;
@@ -397,15 +397,19 @@
         }
 
         .mascot-guide img {
-            width: 160px;
+            width: 100%;
             height: auto;
+            max-height: 400px;
             filter: drop-shadow(0 8px 15px rgba(0,0,0,0.3));
             transition: transform 0.3s;
+            border-radius: 24px;
+            border: 4px solid #ffb142;
+            cursor: pointer;
         }
 
         .mascot-bubble {
             position: absolute;
-            bottom: 210px;
+            bottom: 325px;
             background: white;
             border: 4px solid #ffb142;
             border-radius: 20px;

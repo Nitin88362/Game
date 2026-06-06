@@ -217,34 +217,37 @@
         #screen-game {
             display: flex;
             flex-direction: row;
-            justify-content: center;
-            align-items: center;
+            justify-content: space-between;
+            align-items: flex-end; /* Sits at the bottom */
             width: 100%;
             height: 100%;
             padding: 15px 30px;
             position: relative;
+            gap: 20px;
         }
 
         /* Floating corner panels containing Mascot Cats */
         .mascot-side {
-            position: absolute;
+            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 260px;
+            width: 280px; /* Larger */
             z-index: 100;
             pointer-events: none;
         }
 
         .mascot-side.left {
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            bottom: auto;
+            left: auto;
+            top: auto;
+            transform: none;
         }
 
         .mascot-side.right {
-            display: none; /* Hide right mascot during gameplay */
+            display: flex; /* Show right mascot */
+            right: auto;
+            top: auto;
+            transform: none;
         }
 
         .mascot-side .mascot-bubble {
@@ -254,7 +257,7 @@
         .mascot-side img {
             width: 100%;
             height: auto;
-            max-height: 370px;
+            max-height: 420px; /* Larger */
             filter: drop-shadow(0 10px 16px rgba(0,0,0,0.18));
             pointer-events: auto;
             transition: transform 0.3s;
@@ -262,6 +265,10 @@
 
         .mascot-side.left img {
             animation: hoverMascot 4s infinite ease-in-out;
+        }
+
+        .mascot-side.right img {
+            animation: hoverMascot 4s infinite ease-in-out 0.5s;
         }
 
         /* Interactive mascot animations */
@@ -302,21 +309,15 @@
         /* Responsive styling for mascots on smaller screens */
         @media (max-width: 1300px) {
             .mascot-side {
-                width: 180px;
-            }
-            .mascot-side.left {
-                left: 10px;
+                width: 200px;
             }
             .mascot-side img {
-                max-height: 240px;
+                max-height: 280px;
             }
             .mascot-bubble {
                 font-size: 14px;
                 padding: 8px 12px;
                 max-width: 155px;
-            }
-            .board-container {
-                width: 78% !important;
             }
         }
 
@@ -348,8 +349,8 @@
 
         /* Central Game Board Container - WIDENED for more drawing space */
         .board-container {
-            width: 70%;
-            max-width: 940px;
+            flex-grow: 1;
+            max-width: 860px;
             height: 96%;
             background-color: var(--board-bg);
             background-image: radial-gradient(rgba(139, 90, 43, 0.04) 15%, transparent 15%);
@@ -910,6 +911,12 @@
                         <!-- Elements will be dynamically populated and shuffled on start -->
                     </div>
                 </div>
+            </div>
+
+            <!-- Right Mascot (Fluffy) -->
+            <div class="mascot-side right">
+                <div class="mascot-bubble" id="fluffy-bubble">Find all the matching babies! 🐣</div>
+                <img src="fluffy_premium.png" alt="Fluffy">
             </div>
 
             <!-- Skip navigation to Fruit game directly -->
@@ -1503,19 +1510,26 @@
 
         // Dynamically update bubble dialogues on match feedback
         function showMascotSpeech(text, type) {
-            const bubble = document.getElementById('toffy-bubble');
-            const mascotImg = document.querySelector('.mascot-side.left img');
+            const toffyBubble = document.getElementById('toffy-bubble');
+            const fluffyBubble = document.getElementById('fluffy-bubble');
+            const toffyImg = document.querySelector('.mascot-side.left img');
+            const fluffyImg = document.querySelector('.mascot-side.right img');
             
-            bubble.innerHTML = text;
+            if (toffyBubble) toffyBubble.innerHTML = text;
+            if (fluffyBubble) fluffyBubble.innerHTML = text;
             
-            // Trigger animation on mascot image
-            mascotImg.classList.remove('bounce-mascot', 'shake-mascot');
-            void mascotImg.offsetWidth; // Force reflow to restart animation
-            
-            if (type === 'correct') {
-                mascotImg.classList.add('bounce-mascot');
-            } else if (type === 'wrong') {
-                mascotImg.classList.add('shake-mascot');
+            // Trigger animation on mascot images
+            if (toffyImg) {
+                toffyImg.classList.remove('bounce-mascot', 'shake-mascot');
+                void toffyImg.offsetWidth; // Force reflow
+                if (type === 'correct') toffyImg.classList.add('bounce-mascot');
+                else if (type === 'wrong') toffyImg.classList.add('shake-mascot');
+            }
+            if (fluffyImg) {
+                fluffyImg.classList.remove('bounce-mascot', 'shake-mascot');
+                void fluffyImg.offsetWidth; // Force reflow
+                if (type === 'correct') fluffyImg.classList.add('bounce-mascot');
+                else if (type === 'wrong') fluffyImg.classList.add('shake-mascot');
             }
         }
 

@@ -169,8 +169,8 @@
 
         /* Central Game Board */
         .board-container {
-            width: 72%;
-            max-width: 950px;
+            width: 60%;
+            max-width: 860px;
             height: 82%;
             background-color: var(--board-bg);
             background-image: radial-gradient(rgba(139, 90, 43, 0.04) 15%, transparent 15%);
@@ -292,15 +292,20 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 260px;
+            width: 280px; /* Larger */
             z-index: 100;
             pointer-events: none;
+            bottom: 20px; /* Sits at the bottom */
+            top: auto;
+            transform: none;
         }
 
         .mascot-side.left {
             left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
+        }
+
+        .mascot-side.right {
+            right: 20px; /* Sits on the right */
         }
 
         .mascot-side .mascot-bubble {
@@ -310,7 +315,7 @@
         .mascot-image-holder {
             width: 100%;
             height: auto;
-            max-height: 350px;
+            max-height: 420px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -323,7 +328,9 @@
         .mascot-image-holder img {
             width: 100%;
             height: auto;
-            max-height: 330px;
+            max-height: 400px; /* Larger */
+            border-radius: 24px; /* Rounded corners for the raw image */
+            border: 4px solid var(--card-border); /* Matching border */
         }
 
         .mascot-bubble {
@@ -708,13 +715,18 @@
             </div>
         </div>
 
-        <!-- Float Mascot Guide (Toffy & friends) -->
-        <div class="mascot-side left">
-            <div class="mascot-bubble" id="mascot-bubble">Hello! Let's play a fruit adventure! 🍎</div>
-            <div class="mascot-image-holder" id="mascot-holder" onclick="speakQuestion()">
-                <!-- Rendered dynamically -->
-                <img id="mascot-img" src="toffy_premium.png" alt="Toffy">
-                <div id="mascot-emoji" style="display:none; font-size:140px;">🐰</div>
+        <!-- Float Mascot Guides: Toffy (Left) & Fluffy (Right) -->
+        <div class="mascot-side left" id="toffy-side">
+            <div class="mascot-bubble" id="toffy-bubble">Hello! Let's play a fruit adventure! 🍎</div>
+            <div class="mascot-image-holder" id="toffy-holder" onclick="speakQuestion()">
+                <img id="toffy-img" src="toffy_premium.png" alt="Toffy">
+            </div>
+        </div>
+
+        <div class="mascot-side right" id="fluffy-side">
+            <div class="mascot-bubble" id="fluffy-bubble">Hello! Let's play a fruit adventure! 🍎</div>
+            <div class="mascot-image-holder" id="fluffy-holder" onclick="speakQuestion()">
+                <img id="fluffy-img" src="fluffy_premium.png" alt="Fluffy">
             </div>
         </div>
 
@@ -931,27 +943,35 @@
             generateChallenge();
         }
 
-        // Set Guide Mascot
+        // Set Guide Mascot (No dynamic swap needed since both are persistent)
         function setMascot(charId) {
             let char = characters.find(c => c.id === charId);
             if (!char) {
                 charId = 'toffy';
-                char = characters.find(c => c.id === charId);
             }
             activeCharId = charId;
             localStorage.setItem('active_mascot', charId);
-            
-            const imgEl = document.getElementById('mascot-img');
-            const emojiEl = document.getElementById('mascot-emoji');
+        }
 
-            if (char.img) {
-                imgEl.src = char.img;
-                imgEl.style.display = 'block';
-                emojiEl.style.display = 'none';
-            } else {
-                imgEl.style.display = 'none';
-                emojiEl.innerText = char.emoji;
-                emojiEl.style.display = 'block';
+        // Helper to update bubble texts on both mascots
+        function updateMascotBubble(text) {
+            const toffy = document.getElementById('toffy-bubble');
+            const fluffy = document.getElementById('fluffy-bubble');
+            if (toffy) toffy.innerText = text;
+            if (fluffy) fluffy.innerText = text;
+        }
+
+        // Helper to animate both mascots
+        function animateMascots(className) {
+            const toffy = document.getElementById('toffy-holder');
+            const fluffy = document.getElementById('fluffy-holder');
+            if (toffy) {
+                toffy.classList.add(className);
+                setTimeout(() => toffy.classList.remove(className), 800);
+            }
+            if (fluffy) {
+                fluffy.classList.add(className);
+                setTimeout(() => fluffy.classList.remove(className), 800);
             }
         }
 
@@ -961,7 +981,6 @@
             localStorage.setItem('fruit_stars', stars);
             
             // Check auto unlocks
-            unlockedChars.forEach(c => {});
             let changed = false;
             characters.forEach(c => {
                 if (c.cost > 0 && stars >= c.cost && !unlockedChars.includes(c.id)) {
@@ -984,7 +1003,7 @@
 
         // Speak active question
         function speakQuestion() {
-            const bubbleText = document.getElementById('mascot-bubble').innerText;
+            const bubbleText = document.getElementById('toffy-bubble').innerText;
             speakVoice(bubbleText);
         }
 
@@ -1062,7 +1081,7 @@
             const questionEn = `Click on the ${currentTargetFruit.en}! 🍎`;
             const questionHi = `${currentTargetFruit.hi_t || currentTargetFruit.hi} पर क्लिक करो! 🍎`;
             
-            document.getElementById('mascot-bubble').innerText = language === 'EN' ? questionEn : questionHi;
+            updateMascotBubble(language === 'EN' ? questionEn : questionHi);
 
             // Render cards
             const grid = document.createElement('div');
@@ -1096,7 +1115,7 @@
             } else {
                 qText = `सबसे ${sizeGoal === 'biggest' ? 'बड़ा' : 'छोटा'} ${targetFruit.hi_t || targetFruit.hi} ढूँढो! 📏`;
             }
-            document.getElementById('mascot-bubble').innerText = qText;
+            updateMascotBubble(qText);
 
             // Render three cards with different sizes
             const container = document.createElement('div');
@@ -1144,7 +1163,7 @@
 
             // Question
             let qText = language === 'EN' ? `Find the different fruit! 🍓` : `अलग फल को ढूँढो! 🍓`;
-            document.getElementById('mascot-bubble').innerText = qText;
+            updateMascotBubble(qText);
 
             const grid = document.createElement('div');
             grid.className = `fruits-grid diff-${activeDifficulty}`;
@@ -1182,7 +1201,7 @@
 
             // Question
             let qText = language === 'EN' ? `Match the shadow! 👤` : `परछाईं का मिलान करो! 👤`;
-            document.getElementById('mascot-bubble').innerText = qText;
+            updateMascotBubble(qText);
 
             const holder = document.createElement('div');
             holder.style.display = 'flex';
@@ -1243,13 +1262,11 @@
                     // Time's up!
                     playWrongSound();
                     
-                    const mascotBubble = document.getElementById('mascot-bubble');
-                    mascotBubble.innerText = language === 'EN' ? "Time's up! Let's try another one!" : "समय समाप्त! अगला प्रयास करें!";
-                    speakVoice(mascotBubble.innerText);
+                    const msg = language === 'EN' ? "Time's up! Let's try another one!" : "समय समाप्त! अगला प्रयास करें!";
+                    updateMascotBubble(msg);
+                    speakVoice(msg);
 
-                    const mascotImg = document.querySelector('.mascot-image-holder');
-                    mascotImg.classList.add('shake-mascot');
-                    setTimeout(() => mascotImg.classList.remove('shake-mascot'), 500);
+                    animateMascots('shake-mascot');
 
                     // Re-challenge
                     setTimeout(generateChallenge, 2200);
@@ -1280,7 +1297,6 @@
             artEl.classList.add(fruit.anim || 'anim-bounce');
 
             // Guide cheers
-            const mascotBubble = document.getElementById('mascot-bubble');
             const successTextsEn = ["Excellent! 🎉", "Wow! You did it! 🌟", "Great job! 🏆"];
             const successTextsHi = ["बहुत बढ़िया! 🎉", "अद्भुत! आपने कर दिखाया! 🌟", "शानदार! 🏆"];
             
@@ -1289,14 +1305,12 @@
                 : successTextsHi[Math.floor(Math.random() * successTextsHi.length)];
 
             setTimeout(() => {
-                mascotBubble.innerText = randomMsg;
+                updateMascotBubble(randomMsg);
                 speakVoice(randomMsg);
                 playSuccessSound();
                 
                 // Mascot animation
-                const mascotHolder = document.getElementById('mascot-holder');
-                mascotHolder.classList.add('bounce-mascot');
-                setTimeout(() => mascotHolder.classList.remove('bounce-mascot'), 800);
+                animateMascots('bounce-mascot');
                 
                 // Explosion particles
                 spawnParticles(cardEl);
@@ -1319,17 +1333,14 @@
             playWrongSound();
 
             const failMsg = language === 'EN' ? "Try Again! 🐣" : "फिर से प्रयास करो! 🐣";
-            const mascotBubble = document.getElementById('mascot-bubble');
-            mascotBubble.innerText = failMsg;
+            updateMascotBubble(failMsg);
             speakVoice(failMsg);
 
             // Mascot shakes
-            const mascotHolder = document.getElementById('mascot-holder');
-            mascotHolder.classList.add('shake-mascot');
+            animateMascots('shake-mascot');
 
             setTimeout(() => {
                 cardEl.classList.remove('error-flash');
-                mascotHolder.classList.remove('shake-mascot');
             }, 600);
         }
 
